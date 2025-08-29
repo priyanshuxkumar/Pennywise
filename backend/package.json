@@ -2,13 +2,13 @@
     "name": "backend",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
+    "main": "bin.js",
     "scripts": {
         "build": "tsc",
-        "start": "node dist/server.js",
+        "start": "node dist/bin.js",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "dev": "concurrently \"tsc --watch \" \"nodemon dist/index.js\" ",
+        "dev": "concurrently \"tsc --watch \" \"nodemon dist/bin.js\" ",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
@@ -17,6 +17,7 @@
     "packageManager": "pnpm@10.15.0",
     "dependencies": {
         "cors": "^2.8.5",
+        "dotenv": "^17.2.1",
         "express": "^5.1.0"
     },
     "devDependencies": {
