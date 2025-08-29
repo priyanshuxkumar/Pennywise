@@ -1,0 +1,29 @@
+{
+    "name": "backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/server.js",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "dev": "concurrently \"tsc --watch \" \"nodemon dist/index.js\" ",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.15.0",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^5.1.0"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.3",
+        "concurrently": "^9.2.1",
+        "nodemon": "^3.1.10",
+        "prettier": "^3.6.2"
+    }
+}
