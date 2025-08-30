@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, gte, lte, SQL } from 'drizzle-orm';
 import { db } from './index';
-import { transactions, User, users } from './schema';
+import { Transaction, transactions, User, users } from './schema';
 
 async function getUser(email: string): Promise<User | null> {
     try {
@@ -54,4 +54,107 @@ async function removeUserById(id: string) {
     }
 }
 
-export { getUser, createUser, updateUser, removeUserById };
+async function createTransaction({
+    amount,
+    currency,
+    type,
+    category,
+    description,
+    userId,
+}: {
+    amount: number;
+    currency: string;
+    type: 'income' | 'expense';
+    category: string;
+    description: string;
+    userId: string;
+}): Promise<Transaction | null> {
+    try {
+        const [transaction] = await db
+            .insert(transactions)
+            .values({
+                amount: amount.toString(),
+                currency,
+                type,
+                category,
+                description,
+                userId,
+            })
+            .returning();
+        return transaction || null;
+    } catch (err: unknown) {
+        throw err;
+    }
+}
+
+async function getUserTransactions(
+    userId: string,
+    category?: string,
+    month?: string,
+    year?: string,
+): Promise<Array<Transaction>> {
+    let startDate: Date | undefined;
+    let endDate: Date | undefined;
+    if (year && month) {
+        startDate = new Date(Number(year), Number(month) - 1, 1);
+        endDate = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
+    }
+
+    const conditions: SQL[] = [eq(transactions.userId, userId)];
+    if (category) {
+        conditions.push(eq(transactions.category, category));
+    }
+    if (startDate && endDate) {
+        conditions.push(gte(transactions.createdAt, startDate));
+        conditions.push(lte(transactions.createdAt, endDate));
+    }
+    try {
+        return await db
+            .select()
+            .from(transactions)
+            .where(and(...conditions))
+            .$withCache();
+    } catch (err: unknown) {
+        throw err;
+    }
+}
+
+async function updateTransactionById(
+    id: string,
+    userId: string,
+    payload: { amount: number; currency: string },
+): Promise<Transaction> {
+    try {
+        const [updatedTransaction] = await db
+            .update(transactions)
+            .set({ amount: payload.amount.toString(), currency: payload.currency })
+            .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
+            .returning();
+        return updatedTransaction;
+    } catch (err: unknown) {
+        throw err;
+    }
+}
+
+async function removeTransactionById(id: string, userId: string): Promise<Transaction> {
+    try {
+        const [removedTransaction] = await db
+            .delete(transactions)
+            .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
+            .returning();
+        return removedTransaction;
+    } catch (err: unknown) {
+        throw err;
+    }
+}
+
+export {
+    getUser,
+    createUser,
+    updateUser,
+    removeUserById,
+    createTransaction,
+    getUserTransactions,
+    updateTransactionById,
+    removeTransactionById,
+};

@@ -19,6 +19,6 @@ app.get('/health', (req: Request, res: Response) => {
 
 // routes
 app.use('/auth', authRouter);
-app.use('/api/transaction', transactionRouter);
+app.use('/api/transactions', transactionRouter);
 
 export default app;
