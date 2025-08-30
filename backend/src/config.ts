@@ -12,6 +12,7 @@ const config = {
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     jwtAccessSecret: process.env.JWT_ACCESS_SECRET!,
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET!,
+    openAiApiKey: process.env.OPENAI_API_KEY!,
 };
 
 const cookieOptions: CookieOptions = {
