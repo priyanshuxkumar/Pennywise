@@ -1,5 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { boolean, integer, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { boolean, numeric, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { v4 as uuid } from 'uuid';
 
 export const users = pgTable('users', {
@@ -9,7 +9,9 @@ export const users = pgTable('users', {
     name: text('name').notNull(),
     email: text('email').notNull().unique(),
     emailVerified: boolean('email_verified').notNull().default(false),
-    role: varchar('role', {enum: ['user', 'admin']}).notNull().default('user'),
+    role: varchar('role', { enum: ['user', 'admin'] })
+        .notNull()
+        .default('user'),
     avatar: text('avatar'),
     refreshToken: text('refresh_token'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -23,8 +25,11 @@ export const transactions = pgTable('transactions', {
     id: text('id')
         .primaryKey()
         .$defaultFn(() => uuid()),
-    amount: integer('amount').notNull(),
-    currency: text('currency').notNull(),
+    amount: numeric('amount', { precision: 10, scale: 2 }).notNull(),
+    currency: varchar('currency', { length: 3 }).notNull(),
+    type: varchar('type', { enum: ['income', 'expense'] }).notNull(),
+    category: text('category').notNull(),
+    description: text('description').notNull(),
     userId: text('userId')
         .notNull()
         .references(() => users.id, { onDelete: 'cascade' }),
