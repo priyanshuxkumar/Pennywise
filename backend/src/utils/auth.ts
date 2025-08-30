@@ -1,10 +1,17 @@
+import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { JWT_EXPIRY } from '../constant';
 import { config } from '../config';
 
+const accessTokenBlacklist = new Map<string, boolean>();
+
 function parseGoogleToken(token: string) {
     const [, payload] = token.split('.');
     return JSON.parse(Buffer.from(payload, 'base64').toString('utf8'));
+}
+
+function getAccessToken(req: Request, tokenName: string): string | null {
+    return req.headers.authorization?.split(' ')[1] || req.cookies[tokenName];
 }
 
 function genAccessAndRefreshToken(userId: string, role: string): Record<string, string> | null {
@@ -26,4 +33,4 @@ function genAccessAndRefreshToken(userId: string, role: string): Record<string, 
     }
 }
 
-export { parseGoogleToken, genAccessAndRefreshToken };
+export { accessTokenBlacklist, parseGoogleToken, getAccessToken, genAccessAndRefreshToken };

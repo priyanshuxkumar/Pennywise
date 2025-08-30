@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { config, cookieOptions } from '../../config';
-import { createUser, getUser, updateUser } from '../../lib/db/queries';
-import { genAccessAndRefreshToken, parseGoogleToken } from '../../utils/auth';
+import { createUser, getUser, getUserById, updateUser } from '../../lib/db/queries';
+import { accessTokenBlacklist, genAccessAndRefreshToken, getAccessToken, parseGoogleToken } from '../../utils/auth';
 import { HTTP_RESPONSE_CODE, TOKEN_NAME } from '../../constant';
 import { ApiError } from '../../utils/ApiError';
 import { User } from '../../lib/db/schema';
+import { ApiResponse } from '../../utils/ApiResponse';
 
 const handleGoogleLogin = (_req: Request, _res: Response, _next: NextFunction) => {
     try {
@@ -74,4 +76,76 @@ const handleGoogleCallback = async (_req: Request, _res: Response, _next: NextFu
     }
 };
 
-export { handleGoogleLogin, handleGoogleCallback };
+const refresh = async (_req: Request, _res: Response, _next: NextFunction) => {
+    try {
+        const token: string | null = getAccessToken(_req, TOKEN_NAME.REFRESH_TOKEN);
+        if (!token || token.trim() == '') {
+            throw new ApiError(false, HTTP_RESPONSE_CODE.UNAUTHORIZED, 'Please login again');
+        }
+
+        const decoded = jwt.verify(token, config.jwtRefreshSecret) as jwt.JwtPayload;
+
+        const user: User | null = await getUserById(decoded.id);
+        if (!user || user.refreshToken !== token) {
+            throw new ApiError(false, HTTP_RESPONSE_CODE.UNAUTHORIZED, 'Invalid refresh token');
+        }
+
+        const tokens = genAccessAndRefreshToken(user.id, user.role);
+        const accessToken = tokens?.accessToken;
+        const refreshToken = tokens?.refreshToken;
+
+        await updateUser(user.id, { refreshToken });
+
+        _res.cookie(TOKEN_NAME.ACCESS_TOKEN, accessToken, cookieOptions);
+        _res.cookie(TOKEN_NAME.REFRESH_TOKEN, refreshToken, {
+            ...cookieOptions,
+            maxAge: 1000 * 60 * 15,
+        });
+
+        return _res
+            .status(HTTP_RESPONSE_CODE.SUCCESS)
+            .json(new ApiResponse(true, HTTP_RESPONSE_CODE.SUCCESS, accessToken, 'Token refresh successfully'));
+    } catch (err: unknown) {
+        _next(err);
+    }
+};
+
+const profile = async (_req: Request, _res: Response, _next: NextFunction) => {
+    const userId = _req.id;
+    try {
+        const user = await getUserById(userId);
+        if (!user) {
+            throw new ApiError(false, HTTP_RESPONSE_CODE.NOT_FOUND, 'User not found');
+        }
+        const { refreshToken, ...userProfile } = user;
+
+        _res.status(HTTP_RESPONSE_CODE.SUCCESS).json(
+            new ApiResponse(true, HTTP_RESPONSE_CODE.SUCCESS, userProfile, 'User fetched successfully'),
+        );
+    } catch (err: unknown) {
+        _next(err);
+    }
+};
+
+const logout = async (_req: Request, _res: Response, _next: NextFunction) => {
+    const userId = _req.id;
+    try {
+        const accessToken: string | null = getAccessToken(_req, TOKEN_NAME.ACCESS_TOKEN);
+        if (!accessToken || accessToken.trim() == '') {
+            return _res.json(HTTP_RESPONSE_CODE.NO_CONTENT);
+        }
+
+        accessTokenBlacklist.set(accessToken, true);
+        await updateUser(userId, { refreshToken: null });
+
+        _res.clearCookie(TOKEN_NAME.ACCESS_TOKEN);
+        _res.clearCookie(TOKEN_NAME.REFRESH_TOKEN);
+        _res.status(HTTP_RESPONSE_CODE.SUCCESS).json(
+            new ApiResponse(true, HTTP_RESPONSE_CODE.SUCCESS, null, 'Logout successful'),
+        );
+    } catch (err: unknown) {
+        _next(err);
+    }
+};
+
+export { handleGoogleLogin, handleGoogleCallback, refresh, profile, logout };

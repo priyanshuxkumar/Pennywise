@@ -11,6 +11,15 @@ async function getUser(email: string): Promise<User | null> {
     }
 }
 
+async function getUserById(id: string): Promise<User | null> {
+    try {
+        const [user] = await db.select().from(users).where(eq(users.id, id)).$withCache();
+        return user || null;
+    } catch (err: unknown) {
+        throw err;
+    }
+}
+
 async function createUser({
     name,
     email,
@@ -38,7 +47,7 @@ async function createUser({
     }
 }
 
-async function updateUser(userId: string, data: { refreshToken: string }) {
+async function updateUser(userId: string, data: Partial<User>) {
     try {
         return await db.update(users).set(data).where(eq(users.id, userId));
     } catch (err: unknown) {
@@ -150,6 +159,7 @@ async function removeTransactionById(id: string, userId: string): Promise<Transa
 
 export {
     getUser,
+    getUserById,
     createUser,
     updateUser,
     removeUserById,
