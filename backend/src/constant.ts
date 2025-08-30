@@ -1,0 +1,25 @@
+export const HTTP_RESPONSE_CODE = {
+    SUCCESS: 200,
+    CREATED: 201,
+    ACCEPTED: 202,
+    NO_CONTENT: 204,
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    PAYMENT: 402,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    TIMEOUT: 408,
+    CONFLICT: 409,
+    SERVER_ERROR: 500,
+    SERVICE_UNAVAILABLE: 503,
+};
+
+export const JWT_EXPIRY = {
+    ACCESS_TOKEN_EXPIRY: '30m',
+    REFRESH_TOKEN_EXPIRY: '7d',
+};
+
+export const TOKEN_NAME = {
+    ACCESS_TOKEN: 'auth.0',
+    REFRESH_TOKEN: 'auth.1',
+};
