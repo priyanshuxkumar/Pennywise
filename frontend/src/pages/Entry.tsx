@@ -5,6 +5,7 @@ import EntryEditor from '../components/EntryEdit';
 import Transactions from '../components/Transactions';
 import { SERVER_URL } from '../utils/env';
 import { useTransaction } from '../hooks/useTransaction';
+import { v4 as uuid } from 'uuid';
 
 export interface ParseEntryProp {
     amount: number;
@@ -16,9 +17,11 @@ export interface ParseEntryProp {
 
 const Entry = () => {
     const [input, setInput] = useState<string>('');
-    const [parsedInput, setParsedInput] = useState<ParseEntryProp | null>(null);
+    const [parsedInputs, setParsedInputs] = useState<ParseEntryProp[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [editParsedInput, setEditParsedInput] = useState<ParseEntryProp | null>(null);
+
     const [error, setError] = useState<string>('');
     const { addTransaction } = useTransaction();
 
@@ -39,7 +42,7 @@ const Entry = () => {
                 throw new Error(`Error parsing input: ${res.statusText}`);
             }
             const data = await res.json();
-            setParsedInput(data.data);
+            setParsedInputs(data.data);
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred while parsing';
             setError(errorMessage);
@@ -49,6 +52,7 @@ const Entry = () => {
     };
 
     const createTransaction = async (form: ParseEntryProp) => {
+        console.log('up',form);
         setIsLoading(true);
         setError('');
         try {
@@ -66,8 +70,8 @@ const Entry = () => {
             }
             const data = await res.json();
             addTransaction(data.data);
-            setInput('');
-            setParsedInput(null);
+            setParsedInputs((prev) => prev.filter(t => t.description != form.description));
+            if(parsedInputs.length === 0) setInput('');
         } catch (err: unknown) {
             console.error('Error creating transaction:', err);
             const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
@@ -76,6 +80,11 @@ const Entry = () => {
             setIsLoading(false);
         }
     };
+
+    const handleEdit = (parsedInput: ParseEntryProp) => {
+        setIsModalOpen(true)
+        setEditParsedInput(parsedInput);
+    }
     return (
         <>
             <div className="flex flex-col gap-5 md:flex-row justify-around bg-white dark:bg-black min-h-screen pt-4">
@@ -83,14 +92,15 @@ const Entry = () => {
                     <div>
                         <p className="font-bold text-lg mb-4 text-gray-900 dark:text-gray-100">Add transaction</p>
                     </div>
+
                     <TransactionEntry
                         input={input}
                         setInput={setInput}
                         onSubmit={parseUserInput}
                         isLoading={isLoading}
-                        parsedInput={parsedInput as ParseEntryProp}
-                        setIsModalOpen={setIsModalOpen}
+                        parsedInputs={parsedInputs as ParseEntryProp[]}
                         handleCreateTransaction={createTransaction}
+                        handleEdit={handleEdit}
                         error={error}
                     />
                 </div>
@@ -100,8 +110,8 @@ const Entry = () => {
             </div>
 
             {/* Edit modal  */}
-            {isModalOpen && parsedInput && (
-                <EntryEditor parsedInput={parsedInput} onSave={createTransaction} setIsOpen={setIsModalOpen} />
+            {isModalOpen && editParsedInput && parsedInputs && (
+                <EntryEditor parsedInput={editParsedInput} onSave={createTransaction} setIsOpen={setIsModalOpen} />
             )}
         </>
     );
@@ -120,18 +130,18 @@ function TransactionEntry({
     setInput,
     onSubmit,
     isLoading,
-    parsedInput,
-    setIsModalOpen,
+    parsedInputs,
     handleCreateTransaction,
+    handleEdit,
     error,
 }: {
     input: string;
     setInput: (value: string) => void;
     onSubmit: () => void;
     isLoading: boolean;
-    parsedInput: ParseEntryProp;
-    setIsModalOpen: (value: boolean) => void;
+    parsedInputs: ParseEntryProp[];
     handleCreateTransaction: (data: ParseEntryProp) => void;
+    handleEdit: (parsedInput: ParseEntryProp) => void;
     error: string;
 }) {
     return (
@@ -166,38 +176,40 @@ function TransactionEntry({
                 </div>
             )}
 
-            {parsedInput && (
-                <div className="mt-4 rounded-lg bg-gray-50 dark:bg-neutral-800 p-3">
-                    <p className="text-xs font-medium text-gray-600 dark:text-gray-300">AI parse</p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                        {Object.entries(parsedInput).map(([key, value]) => {
-                            const label = `${key.charAt(0).toUpperCase()}${key.slice(1)}: ${value}`;
-                            return <Chip key={key} label={label} />;
-                        })}
+            {parsedInputs.map((parsedInput) => (
+                <div key={uuid()}>
+                    <div key={uuid()} className="mt-4 rounded-lg bg-gray-50 dark:bg-neutral-800 p-3">
+                        <p className="text-xs font-medium text-gray-600 dark:text-gray-300">AI parse</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                            {Object.entries(parsedInput).map(([key, value]) => {
+                                const label = `${key.charAt(0).toUpperCase()}${key.slice(1)}: ${value}`;
+                                return <Chip key={uuid()} label={label} />;
+                            })}
+                        </div>
+                        <div className="mt-3 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                            <Check className="h-4 w-4 text-green-500" />
+                            Looks good? Confirm to save.
+                        </div>
                     </div>
-                    <div className="mt-3 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                        <Check className="h-4 w-4 text-green-500" />
-                        Looks good? Confirm to save.
+
+                    <div className="mt-4 flex gap-3">
+                        <button
+                            onClick={() => handleCreateTransaction(parsedInput as ParseEntryProp)}
+                            disabled={input.trim() == ''}
+                            className="flex-1 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                        >
+                            Confirm
+                        </button>
+                        <button
+                            onClick={() => handleEdit(parsedInput)}
+                            disabled={input.trim() == ''}
+                            className="flex-1 rounded-md border border-gray-300 dark:border-white/10 px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-300 bg-white dark:bg-neutral-900"
+                        >
+                            Edit
+                        </button>
                     </div>
                 </div>
-            )}
-
-            <div className="mt-4 flex gap-3">
-                <button
-                    onClick={() => handleCreateTransaction(parsedInput as ParseEntryProp)}
-                    disabled={input.trim() == ''}
-                    className="flex-1 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                >
-                    Confirm
-                </button>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    disabled={input.trim() == ''}
-                    className="flex-1 rounded-md border border-gray-300 dark:border-white/10 px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-300 bg-white dark:bg-neutral-900"
-                >
-                    Edit
-                </button>
-            </div>
+            ))}
 
             <p className="mt-3 text-xs text-gray-600 dark:text-gray-400">
                 On confirm, your dashboard cards and charts update.
