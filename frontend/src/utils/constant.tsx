@@ -1,11 +1,6 @@
-import { BarChart3, User, Home, DollarSign } from 'lucide-react';
+import { BarChart3, User, DollarSign } from 'lucide-react';
 
 export const navigationItems = [
-    {
-        icon: <Home size={20} />,
-        title: 'Home',
-        link: '/',
-    },
     {
         icon: <BarChart3 size={20} />,
         title: 'Dashboard',

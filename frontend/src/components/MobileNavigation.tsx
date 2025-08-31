@@ -12,7 +12,7 @@ export function MobileBottomNav() {
               bg-white/90 dark:bg-neutral-900/90 backdrop-blur
             "
         >
-            <ul className="mx-auto max-w-md grid grid-cols-4 gap-2 px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+8px)]">
+            <ul className="mx-auto max-w-md grid grid-cols-3 gap-2 px-4 pt-2 pb-[calc(env(safe-area-inset-bottom)+8px)]">
                 {navigationItems.map((item) => {
                     const isActive = location.pathname === item.link;
                     return (
