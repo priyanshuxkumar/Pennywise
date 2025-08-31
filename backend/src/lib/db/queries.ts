@@ -1,4 +1,4 @@
-import { and, eq, gte, lte, SQL } from 'drizzle-orm';
+import { and, desc, eq, gte, lte, SQL } from 'drizzle-orm';
 import { db } from './index';
 import { Transaction, transactions, User, users } from './schema';
 
@@ -99,21 +99,28 @@ async function createTransaction({
 async function getUserTransactions(
     userId: string,
     category?: string,
-    month?: string,
-    year?: string,
+    stDate?: Date | string,
+    enDate?: Date | string,
 ): Promise<Array<Transaction>> {
-    let startDate: Date | undefined;
-    let endDate: Date | undefined;
-    if (year && month) {
-        startDate = new Date(Number(year), Number(month) - 1, 1);
-        endDate = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
-    }
-
     const conditions: SQL[] = [eq(transactions.userId, userId)];
     if (category) {
         conditions.push(eq(transactions.category, category));
     }
-    if (startDate && endDate) {
+
+    if (
+        stDate &&
+        enDate &&
+        stDate !== 'null' &&
+        enDate !== 'null' &&
+        stDate !== 'undefined' &&
+        enDate !== 'undefined'
+    ) {
+        const startDate = new Date(stDate);
+        startDate.setHours(0, 0, 0, 0);
+
+        const endDate = new Date(enDate);
+        endDate.setHours(23, 59, 59, 999);
+
         conditions.push(gte(transactions.createdAt, startDate));
         conditions.push(lte(transactions.createdAt, endDate));
     }
@@ -122,6 +129,7 @@ async function getUserTransactions(
             .select()
             .from(transactions)
             .where(and(...conditions))
+            .orderBy(desc(transactions.createdAt))
             .$withCache();
     } catch (err: unknown) {
         throw err;

@@ -27,8 +27,14 @@ const transaction = async (_req: Request, _res: Response, _next: NextFunction) =
     const userId = _req.id;
     try {
         const { amount, currency, type, category, description } = _req.body;
-        console.log(amount)
-        const newTransaction: Transaction | null = await createTransaction({ amount, currency, type, category, description, userId });
+        const newTransaction: Transaction | null = await createTransaction({
+            amount,
+            currency,
+            type,
+            category,
+            description,
+            userId,
+        });
         if (!newTransaction) {
             throw new ApiError(false, HTTP_RESPONSE_CODE.SERVER_ERROR, 'Something went wrong while adding transaction');
         }
@@ -41,15 +47,15 @@ const transaction = async (_req: Request, _res: Response, _next: NextFunction) =
 };
 
 const getTransactions = async (_req: Request, _res: Response, _next: NextFunction) => {
-    const { category, month, year } = _req.query as {
+    const { category, stDate, enDate } = _req.query as {
         category?: string;
-        month?: string;
-        year?: string;
+        stDate?: Date | string;
+        enDate?: Date | string;
     };
 
     const userId = _req.id;
     try {
-        const transactions = await getUserTransactions(userId, category, month, year);
+        const transactions = await getUserTransactions(userId, category, stDate, enDate);
         _res.status(HTTP_RESPONSE_CODE.SUCCESS).json(
             new ApiResponse(true, HTTP_RESPONSE_CODE.SUCCESS, transactions, 'Transaction fetched successfully'),
         );
