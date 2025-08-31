@@ -1,5 +1,6 @@
 import type React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useUser } from './UserProvider';
 import { SERVER_URL } from '../utils/env';
 
@@ -7,9 +8,11 @@ const Login: React.FC = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useUser();
 
-    if (isAuthenticated) {
-        navigate('/dashboard');
-    }
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/dashboard');
+        }
+    }, [isAuthenticated, navigate]);
     return (
         <main className="min-h-screen bg-white text-black dark:bg-black dark:text-gray-100">
             <div className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
