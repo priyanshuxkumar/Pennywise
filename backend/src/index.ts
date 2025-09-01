@@ -4,6 +4,8 @@ import cookieParser from 'cookie-parser';
 import { transactionRouter } from './modules/transaction/transaction.route';
 import { authRouter } from './modules/auth/auth.route';
 import { corsOptions } from './config';
+import { analyticsRouter } from './modules/analytics/analytics.route';
+import { error } from './middleware/error.middleware';
 
 const app = express();
 
@@ -22,5 +24,8 @@ app.get('/health', (req: Request, res: Response) => {
 // routes
 app.use('/auth', authRouter);
 app.use('/api/transactions', transactionRouter);
+
+// Error handling middleware
+app.use(error);
 
 export default app;
