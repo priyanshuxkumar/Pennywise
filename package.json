@@ -1,13 +1,26 @@
 {
-  "name": "financetracker",
+  "name": "pennywise",
   "version": "1.0.0",
-  "description": "",
+  "description": "A full-stack finance tracking application with AI-powered transaction categorization and analytics",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter frontend dev\"",
+    "build": "pnpm --filter backend build && pnpm --filter frontend build",
+    "start": "concurrently \"pnpm --filter backend start\" \"pnpm --filter frontend preview\"",
+    "install": "pnpm install && pnpm --filter backend install && pnpm --filter frontend install",
+    "docker:db:up": "docker compose -f docker-compose.yaml up -d",
+    "db:generate": "pnpm --filter backend db:generate",
+    "db:push": "pnpm --filter backend db:push",
+    "db:migrate": "pnpm --filter backend db:migrate",
+    "format": "pnpm --filter backend format",
+    "lint": "pnpm --filter frontend lint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["finance", "tracker", "ai", "react", "nodejs", "typescript"],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.15.0"
+  "packageManager": "pnpm@10.15.0",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
 }
