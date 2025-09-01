@@ -3,9 +3,11 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { transactionRouter } from './modules/transaction/transaction.route';
 import { authRouter } from './modules/auth/auth.route';
+import { corsOptions } from './config';
 
 const app = express();
-app.use(cors());
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 

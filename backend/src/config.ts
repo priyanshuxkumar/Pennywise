@@ -15,6 +15,13 @@ const config = {
     openAiApiKey: process.env.OPENAI_API_KEY!,
 };
 
+const corsOptions = {
+    origin: config.clientUrl ? [config.clientUrl] : true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+};
+
 const cookieOptions: CookieOptions = {
     httpOnly: true,
     secure: config.nodeEnv === 'production',
@@ -22,4 +29,4 @@ const cookieOptions: CookieOptions = {
     path: '/',
     sameSite: 'strict',
 };
-export { config, cookieOptions };
+export { config, corsOptions, cookieOptions };
