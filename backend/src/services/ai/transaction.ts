@@ -23,20 +23,11 @@ const SingleTransactionExtractionSchema = BaseTransactionSchema.extend({
 
 type Transaction = z.infer<typeof TransactionSchema>;
 
-async function tryLLMCall<T>(text: string, schema: z.ZodType<T>, action: string, prompt: string): Promise<T | null> {
-    try {
-        const result = await llmCall<T>(text, schema, action, prompt);
-        return result;
-    } catch {
-        return null;
-    }
-}
-
 async function parseContent(text: string): Promise<Transaction[]> {
-    let extraction = await tryLLMCall(text, TransactionExtractionSchema, 'extract-transactions', EXTRACTION_PROMPT);
+    let extraction = await llmCall(text, TransactionExtractionSchema, 'extract-transactions', EXTRACTION_PROMPT);
 
     if (!extraction) {
-        const single = await tryLLMCall(
+        const single = await llmCall(
             text,
             SingleTransactionExtractionSchema,
             'extract-single-transaction',
@@ -49,15 +40,13 @@ async function parseContent(text: string): Promise<Transaction[]> {
     }
     console.log(extraction)
     if (!extraction) {
-        console.log('enter');
-        const direct = await tryLLMCall<Transaction>(text, TransactionSchema, 'direct-transaction-parse', PROMPT);
+        const direct = await llmCall<Transaction>(text, TransactionSchema, 'direct-transaction-parse', PROMPT);
         if (!direct) throw new Error('Failed to extract transactions');
         return [direct];
     }
 
     const processedTransactions: Transaction[] = [];
     for (const t of extraction.transactions) {
-        console.log('t', t);
         const detailed = await llmCall<Transaction>(
             t.rawText,
             TransactionSchema,
