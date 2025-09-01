@@ -24,6 +24,7 @@ app.get('/health', (req: Request, res: Response) => {
 // routes
 app.use('/auth', authRouter);
 app.use('/api/transactions', transactionRouter);
+app.use('/api/analytics', analyticsRouter);
 
 // Error handling middleware
 app.use(error);
