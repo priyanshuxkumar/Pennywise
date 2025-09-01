@@ -1,6 +1,7 @@
 import React from 'react';
 import Summary from './SummaryCard';
 import PieChart from './PieChart';
+import SpendingLineChart from './LineChart';
 import Transactions from './Transactions';
 
 export interface CategoriesProps {
@@ -23,6 +24,8 @@ const Dashboard: React.FC = () => {
                     {/* Spening Summary  */}
                     <div className="flex flex-col md:flex-row gap-5 justify-between w-full">
                         <Summary />
+                        {/* Line Chart  */}
+                        <SpendingLineChart />
                     </div>
 
                     {/* Spening categories  */}
