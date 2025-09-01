@@ -1,8 +1,18 @@
 import { UserIcon, Mail, Calendar, Shield } from 'lucide-react';
 import { useUser } from '../components/UserProvider';
+import ErrorCard from '../components/Error';
+import NoDataFound from '../components/NoDataFound';
 
 export default function Profile() {
-    const { user } = useUser();
+    const { user, error } = useUser();
+
+    if (error) {
+        return <ErrorCard error={error} />;
+    }
+
+    if (!user) {
+        return <NoDataFound message="User not found" description="" />;
+    }
     return (
         <main className="mx-auto max-w-5xl px-4 py-6 sm:py-8">
             <section
