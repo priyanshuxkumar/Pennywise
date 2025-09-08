@@ -80,7 +80,7 @@ const SpendingPieChart = () => {
                                 nameKey="category"
                                 label={({ category, amount }) => `${category}: ${amount}`}
                             >
-                                {data.map((entry, idx) => (
+                                {data.map((_, idx) => (
                                     <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
                                 ))}
                             </Pie>
