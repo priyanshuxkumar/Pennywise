@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import type { ParseEntryProp } from '../pages/Entry';
+import type { TransactionDataProps } from '../utils/types';
 
 interface EntryEditor {
-    parsedInput: ParseEntryProp;
-    onSave: (data: ParseEntryProp) => void;
+    parsedInput: ParseEntryProp | TransactionDataProps;
+    onSave: (data: ParseEntryProp | TransactionDataProps) => void;
     setIsOpen: (value: boolean) => void;
 }
 
