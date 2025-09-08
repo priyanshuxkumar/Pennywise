@@ -68,10 +68,11 @@ const updateTransaction = async (_req: Request, _res: Response, _next: NextFunct
     const userId = _req.id;
     const id = _req.params.id;
     try {
-        const { amount, currency } = _req.body;
+        const { amount, currency, description } = _req.body;
         const transactions = await updateTransactionById(id, userId, {
             amount,
             currency,
+            description
         });
         _res.status(HTTP_RESPONSE_CODE.SUCCESS).json(
             new ApiResponse(true, HTTP_RESPONSE_CODE.SUCCESS, transactions, 'Transaction updated'),

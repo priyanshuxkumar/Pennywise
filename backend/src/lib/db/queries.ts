@@ -139,12 +139,12 @@ async function getUserTransactions(
 async function updateTransactionById(
     id: string,
     userId: string,
-    payload: { amount: number; currency: string },
+    payload: { amount: number; currency: string, description: string },
 ): Promise<Transaction> {
     try {
         const [updatedTransaction] = await db
             .update(transactions)
-            .set({ amount: payload.amount.toString(), currency: payload.currency })
+            .set({ amount: payload.amount.toString(), currency: payload.currency, description: payload.description })
             .where(and(eq(transactions.id, id), eq(transactions.userId, userId)))
             .returning();
         return updatedTransaction;

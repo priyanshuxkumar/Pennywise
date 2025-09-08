@@ -15,6 +15,7 @@ const CreateTransactionSchema = z.object({
 const UpdateTransactionSchema = z.object({
     amount: z.number().nonoptional({ message: 'Amount is required to update' }),
     currency: z.string().nonempty({ message: 'Currency is required to update' }),
+    description: z.string().nonempty({message: 'Description cannot be empty'})
 });
 
 export type TransactionParse = z.infer<typeof TransactionParseSchema>;
