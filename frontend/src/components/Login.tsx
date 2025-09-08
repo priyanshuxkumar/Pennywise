@@ -1,18 +1,18 @@
 import type React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useUser } from './UserProvider';
+import { Link } from 'react-router-dom';
+// import { useEffect } from 'react';
+// import { useUser } from './UserProvider';
 import { SERVER_URL } from '../utils/env';
 
 const Login: React.FC = () => {
-    const navigate = useNavigate();
-    const { isAuthenticated } = useUser();
+    // const navigate = useNavigate();
+    // const { isAuthenticated } = useUser();
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/dashboard');
-        }
-    }, [isAuthenticated, navigate]);
+    // useEffect(() => {
+    //     if (isAuthenticated) {
+    //         navigate('/dashboard');
+    //     }
+    // }, [isAuthenticated, navigate]);
     return (
         <main className="min-h-screen bg-white text-black dark:bg-black dark:text-gray-100">
             <div className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
@@ -30,7 +30,7 @@ const Login: React.FC = () => {
                         <div>
                             <button
                                 onClick={() => (window.location.href = `${SERVER_URL}/auth/google`)}
-                                className="group relative flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50  dark:border-gray-600 dark:bg-black/80 dark:text-gray-200 dark:hover:bg-gray-700"
+                                className="group relative flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50  dark:border-neutral-900 dark:bg-black/80 dark:text-gray-200 dark:hover:bg-neutral-900"
                             >
                                 <svg className="mr-3 h-5 w-5" viewBox="0 0 24 24">
                                     <path

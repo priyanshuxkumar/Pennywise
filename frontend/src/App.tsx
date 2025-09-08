@@ -12,6 +12,7 @@ import { useUser } from './components/UserProvider';
 import LoginPage from './pages/Login';
 import { UserProvider } from './context/user.context';
 import Loader from './components/Loader';
+import { TransactionProvider } from './context/transaction.context';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, isLoading } = useUser();
@@ -46,12 +47,14 @@ function Layout() {
             )}
             <div className={`flex-1 ${matches ? 'pb-20' : 'ml-64'}`}>
                 <div className="h-full md:h-screen overflow-y-auto">
-                    <Routes>
-                        <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/entry" element={<Entry />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                    </Routes>
+                    <TransactionProvider>
+                        <Routes>
+                            <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/entry" element={<Entry />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        </Routes>
+                    </TransactionProvider>
                 </div>
             </div>
         </div>
@@ -60,22 +63,23 @@ function Layout() {
 
 function App() {
     return (
-        <UserProvider>
-            <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={<HomePage />} />
+        <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<HomePage />} />
 
-                <Route
-                    path="/*"
-                    element={
+            <Route
+                path="/*"
+                element={
+                    <UserProvider>
                         <ProtectedRoute>
                             <Layout />
                         </ProtectedRoute>
-                    }
-                />
-                <Route path="*" element={<NotFound />} />
-            </Routes>
-        </UserProvider>
+                    </UserProvider>
+                }
+            ></Route>
+
+            <Route path="*" element={<NotFound />} />
+        </Routes>
     );
 }
 
