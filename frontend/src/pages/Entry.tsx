@@ -4,13 +4,14 @@ import Loader from '../components/Loader';
 import EntryEditor from '../components/EntryEdit';
 import Transactions from '../components/Transactions';
 import { SERVER_URL } from '../utils/env';
-import { useTransaction } from '../hooks/useTransaction';
 import { v4 as uuid } from 'uuid';
+import { useTransaction } from '../hooks/useTransaction';
+import type { TransactionDataProps } from '../utils/types';
 
 export interface ParseEntryProp {
     amount: number;
     currency: string;
-    type: string;
+    type: 'income' | 'expense';
     category: string;
     description: string;
 }
@@ -51,8 +52,7 @@ const Entry = () => {
         }
     };
 
-    const createTransaction = async (form: ParseEntryProp) => {
-        console.log('up',form);
+    const createTransaction = async (form: ParseEntryProp | TransactionDataProps) => {
         setIsLoading(true);
         setError('');
         try {
@@ -71,7 +71,9 @@ const Entry = () => {
             const data = await res.json();
             addTransaction(data.data);
             setParsedInputs((prev) => prev.filter(t => t.description != form.description));
-            if(parsedInputs.length === 0) setInput('');
+
+            // clear the input box 
+            if(parsedInputs.length === 1) setInput('');
         } catch (err: unknown) {
             console.error('Error creating transaction:', err);
             const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
