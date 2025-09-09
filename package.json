@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter frontend dev\"",
     "build": "pnpm --filter backend build && pnpm --filter frontend build",
+    "bootstrap": "pnpm install && pnpm --filter backend install && pnpm --filter frontend install",
     "start": "concurrently \"pnpm --filter backend start\" \"pnpm --filter frontend preview\"",
-    "install": "pnpm install && pnpm --filter backend install && pnpm --filter frontend install",
     "docker:db:up": "docker compose -f docker-compose.yaml up -d",
     "db:generate": "pnpm --filter backend db:generate",
     "db:push": "pnpm --filter backend db:push",
