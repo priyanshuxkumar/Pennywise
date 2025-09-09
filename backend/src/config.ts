@@ -27,6 +27,6 @@ const cookieOptions: CookieOptions = {
     secure: config.nodeEnv === 'production',
     maxAge: 1000 * 60 * 15, // 15m
     path: '/',
-    sameSite: 'strict',
+    sameSite: 'none',
 };
 export { config, corsOptions, cookieOptions };

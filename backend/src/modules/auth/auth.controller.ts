@@ -68,7 +68,7 @@ const handleGoogleCallback = async (_req: Request, _res: Response, _next: NextFu
         _res.cookie(TOKEN_NAME.ACCESS_TOKEN, accessToken, cookieOptions);
         _res.cookie(TOKEN_NAME.REFRESH_TOKEN, refreshToken, {
             ...cookieOptions,
-            maxAge: 1000 * 60 * 15,
+            maxAge: 1000 * 60 * 60 * 24 * 7,
         });
         _res.redirect(`${config.clientUrl}/dashboard`);
     } catch (err: unknown) {
